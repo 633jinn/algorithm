@@ -1,9 +1,5 @@
 import sys
-import bisect
-a= [50, 60, 70]
-x=60
 
-print(bisect.bisect_right(a, x))
 card_size = int(sys.stdin.readline())
 card = list(map(int, sys.stdin.readline().split()))
 own_card_size = int(sys.stdin.readline())
