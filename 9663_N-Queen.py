@@ -18,9 +18,9 @@ def dfs(row, column, visited):
                         or j == column):
                     check = True
                     break
-        if not check:
+        if not check: # 퀸을 놓을 수 있다면
             visited[row] = column
-            if row == N- 1:
+            if row == N- 1: # 마지막 row라면
                 count += 1
                 return
             else:
