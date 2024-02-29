@@ -1,32 +1,25 @@
 import sys
-
-input = sys.stdin.readline
-
 from collections import deque
 
+input = sys.stdin.readline
 N = int(input())
-result = [0 for i in range(N+1)]
-
-result[1] = 9
-result[2] = 17
-que = deque()
-num = deque()
-for i in range(N):
-    que.append(i)
-    num.append(1)
-    if i == 9:
-        break
 lst = []
-while True:
-    q = que.popleft()
-    n = num.popleft()
-    if 
-    if q == 0:
-        que.appendleft(1)
-    elif q == 9:
-        que.appendleft(9)
-    else:
-        que.appendleft(q+1)
-        que.appendleft(q-1)
+count = [1, 2, 2, 2, 2, 2, 2, 2, 2, 1]
+n = 2
+if N == 1:
+    print(9)
+elif N == 2:
+    print(17)
+else:
+    for i in range(3, N + 1):
+        lst = [0 for _ in range(10)]
+        for j in range(0, 9 + 1):
+            if j == 0:
+                lst[j] = count[j + 1]
+            elif j == 9:
+                lst[j] = count[j - 1]
+            else:
+                lst[j] = count[j - 1] + count[j + 1]
 
-print(result[N])
+        count = lst
+    print(sum(count[1:])%1000000000)
