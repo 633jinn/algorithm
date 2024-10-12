@@ -1,11 +1,13 @@
+package java_folder;
+
 import java.io.*;
 import java.util.*;
 
 
-public class Main {
+public class 경로_찾기 {
     private static final int MAX = 30;
-    int[][] arr = new int[MAX][MAX];
-    public void solution() throws IOException {
+    static int[][] arr = new int[MAX][MAX];
+    public static void solution() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
@@ -23,7 +25,7 @@ public class Main {
         bw.close();
     }
 
-    private void combination() {
+    private static void combination() {
         for (int m = 1; m < MAX; m++) {
             arr[m][1] = m;
         }
@@ -36,6 +38,6 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-        new Main().solution();
+        solution();
     }
 }
