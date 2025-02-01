@@ -1,1 +1,1 @@
-# Baekjoon_algorithmStudy
+# algorithm
