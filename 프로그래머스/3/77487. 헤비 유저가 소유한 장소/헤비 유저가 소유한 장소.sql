@@ -5,5 +5,5 @@ select p1.ID, p1.NAME, p1.HOST_ID
         from PLACES
         group by HOST_ID
     ) p2 on p1.HOST_ID=p2.HOST_ID
-    where p2.COUNT>=2;
-    
+    where p2.COUNT>=2
+    ;
