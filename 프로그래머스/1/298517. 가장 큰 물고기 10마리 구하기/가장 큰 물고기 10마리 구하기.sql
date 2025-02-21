@@ -1,5 +1,4 @@
-select ID, LENGTH
+select id, length 
     from FISH_INFO
-    where LENGTH > 10
-    order by LENGTH desc, ID
-    limit 10
+    order by length desc, id asc
+    limit 10;
