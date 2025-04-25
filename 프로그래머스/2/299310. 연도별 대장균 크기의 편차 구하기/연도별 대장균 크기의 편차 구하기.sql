@@ -1,15 +1,9 @@
--- 코드를 작성해주세요
-select YEAR(a.DIFFERENTIATION_DATE) as YEAR, 
-        (b.max_size_of_colony - a.size_of_colony) as YEAR_DEV, 
-        a.id as ID
-    from ECOLI_DATA a
-    
-    join (
-        select max(size_of_colony) as max_size_of_colony, 
-            date_format(DIFFERENTIATION_DATE, '%Y') as year
-        from ECOLI_DATA
-        group by year
-    ) b on date_format(a.DIFFERENTIATION_DATE, '%Y') = b.year
-    
-    order by YEAR, YEAR_DEV;
-    
+WITH CUSTOM_ECOLI AS (
+    SELECT YEAR(DIFFERENTIATION_DATE) AS YEAR, MAX(SIZE_OF_COLONY) AS MAX_SIZE
+    FROM ECOLI_DATA
+    GROUP BY 1
+)
+
+select YEAR(ECOLI_DATA.DIFFERENTIATION_DATE) AS YEAR , MAX_SIZE - SIZE_OF_COLONY AS YEAR_DEV, ECOLI_DATA.ID
+from ECOLI_DATA JOIN CUSTOM_ECOLI AS M ON YEAR(ECOLI_DATA.DIFFERENTIATION_DATE)  = M.YEAR
+ORDER BY 1, 2
