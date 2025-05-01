@@ -1,12 +1,15 @@
-select f.ID, fn.FISH_NAME, f.LENGTH
-    from FISH_INFO f join FISH_NAME_INFO fn
-                on f.FISH_TYPE = fn.FISH_TYPE
-                
-    where (fn.FISH_NAME, f.LENGTH) in (select fn.FISH_NAME, MAX(f.LENGTH) as LENGTH
-            from FISH_INFO f join FISH_NAME_INFO fn
-                on f.FISH_TYPE = fn.FISH_TYPE
-            group by fn.FISH_NAME)
-    order by f.ID;
-            
-
-        
+WITH MAX_SIZE AS (
+    SELECT FISH_TYPE, MAX(LENGTH) AS LENGTH
+    FROM FISH_INFO
+    GROUP BY FISH_TYPE
+), FISH AS (
+    SELECT ID, FISH_TYPE, LENGTH
+    FROM FISH_INFO AS I
+    WHERE 1=1 AND
+        EXISTS (
+            SELECT 1 FROM MAX_SIZE AS S WHERE I.FISH_TYPE = S.FISH_TYPE AND I.LENGTH = S.LENGTH
+        )
+)
+SELECT F.ID, N.FISH_NAME, F.LENGTH
+FROM FISH F JOIN FISH_NAME_INFO N ON F.FISH_TYPE = N.FISH_TYPE
+ORDER BY 1
