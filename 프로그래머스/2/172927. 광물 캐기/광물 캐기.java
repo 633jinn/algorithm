@@ -1,70 +1,80 @@
 import java.util.*;
 class Solution {
-    static class Mineral_5{
-        // 곡괭이 별로 미네랄을 5개 캤을 때의 피로도
-        private int dia;
-        private int iron;
-        private int stone;
-        
-        public Mineral_5(int dia, int iron, int stone){
+    static class Mineral implements Comparable<Mineral>{
+        ArrayList<String> list;
+        int dia = 0;
+        int iron = 0;
+        int stone = 0;
+        public Mineral(ArrayList<String> list, int dia, int iron, int stone){
+            this.list = list;
             this.dia = dia;
             this.iron = iron;
             this.stone = stone;
         }
+        
+        @Override
+        public int compareTo(Mineral m){
+            if(m.stone==this.stone){
+                if(m.iron== this.iron){
+                    // return m.dia - this.dia;
+                    return this.dia - m.dia;
+                }
+                // return m.iron - this.iron;
+                return this.iron - m.iron;
+            }
+            return m.stone - this.stone;
+        }
     }
+    // static PriorityQueue<Integer> pq = new PriorityQueue<>((o1, o2) -> o2-o1);
+    static PriorityQueue<Mineral> pq = new PriorityQueue<>();
 
-    static List<Mineral_5> list= new ArrayList<>();
-    static int[][] scoreBoard;
+
+    static int[][] work = {{1,1,1}, {5,1,1}, {25,5,1}};
+    
+    static int dia = 0;
+    static int iron = 0;
+    static int stone = 0;
     
     public int solution(int[] picks, String[] minerals) {
+        //picks = 곡괭이 개수(dia, iron, stone), minerals = 광물의 순서
+        int count = 0;
+        ArrayList<String> list = new ArrayList<>();
+        int sumPicks = picks[0]+picks[1]+picks[2];
+        for(int i = 0; i<minerals.length; i++){
+            if(pq.size()==sumPicks) break;
+            if(i!=0 && i%5==0){
+                pq.offer(new Mineral(list, dia, iron, stone));
+                list = new ArrayList<>();
+                dia = 0;
+                iron = 0;
+                stone = 0;
+            }
+            if(minerals[i].equals("diamond")) addCount(0);
+            else if(minerals[i].equals("iron")) addCount(1);
+            else addCount(2);
+            list.add(minerals[i]);
+        }
+        if(pq.size()<sumPicks)       
+            pq.offer(new Mineral(list, dia, iron, stone));
+        int idx = 0;
         int answer = 0;
-        
-        // 다이아, 철, 돌 순
-        scoreBoard = new int[][]{{1, 1, 1}, {5, 1, 1}, {25, 5, 1}};
-        int totalPicks = Arrays.stream(picks).sum();
-        
-        for(int i = 0; i<minerals.length;i+=5){
-            if(totalPicks == 0) break;
-            
-            int dia = 0, iron = 0, stone = 0;
-            for(int j = i; j<i+5; j++){
-                if(j == minerals.length) break;
-                
-                String mineral = minerals[j];
-                
-                int val = mineral.equals("diamond")? 0:mineral.equals("iron")?1:2;
-                dia += scoreBoard[0][val];
-                iron += scoreBoard[1][val];
-                stone += scoreBoard[2][val];
+        while(!pq.isEmpty() && idx<3){
+            if(picks[idx] == 0) {idx++; continue;}
+            Mineral mineral = pq.poll();
+            System.out.println(mineral.list);
+            for(String m : mineral.list){
+                if(m.equals("diamond")) answer += work[idx][0];
+                else if(m.equals("iron")) answer += work[idx][1];
+                else answer += work[idx][2];
             }
-            list.add(new Mineral_5(dia, iron, stone));
-            totalPicks--;
+            picks[idx] -= 1;
         }
-        
-        Collections.sort(list, ((o1, o2) -> (o2.stone - o1.stone)));
-        for(Mineral_5 m : list){
-            int dia = m.dia;
-            int iron = m.iron;
-            int stone = m.stone;
-            
-            if(picks[0] > 0) {
-                answer += dia;
-                picks[0]--;
-                continue;
-            }
-            if(picks[1] > 0) {
-                answer += iron;
-                picks[1]--;
-                continue;
-            }
-            if(picks[2] > 0) {
-                answer += stone;
-                picks[2]--;
-                continue;
-            }
-        }
-        
         
         return answer;
+    }
+    public void addCount(int idx){
+        dia += work[0][idx];
+        iron += work[1][idx];
+        stone += work[2][idx];
     }
 }
