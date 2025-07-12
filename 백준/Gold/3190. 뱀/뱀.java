@@ -2,118 +2,89 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int N; // 보드의 길이
-    static int K; // 사과의 개수
-    static int L; // 방향 전환 횟수
-    static int[][] arr;
-    static int[] moveX = { -1, 1, 0, 0 }; // 상, 하, 좌, 우
-    static int[] moveY = { 0, 0, -1, 1 };
-    static int[] leftIndex = { 2, 3, 1, 0 };
-    static int[] rightIndex = { 3, 2, 0, 1 };
+    static int n, k, l;
+    static int[][] map;
+    static boolean[][] visited; // visited: 뱀의 몸통의 위치 확인용
+    static Queue<String[]> moves = new LinkedList<>();
+    static Deque<int[]> snake = new LinkedList<>();
+    static int[] dx = { 0, 0, -1, 1 };// 왼쪽, 오른쪽, 위, 아래
+    static int[] dy = { -1, 1, 0, 0 };
 
-    static int result = 0;
+    public static void main(String[] args) throws Exception {
+        input();
+        snake.offer(new int[] { 1, 1 });
+        visited[1][1] = true;
 
-    static Queue<Move> queue = new LinkedList<>();
-    // Deque를 이용한 뱀 머리, 꼬리 구현
-    static Deque<Position<Integer, Integer>> deque = new LinkedList<>();
-
-    public static class Position<X, Y> {
-        X x;
-        Y y;
-
-        public Position(X x, Y y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
-
-    public static class Move {
-        int seconds;
-        String turn;
-
-        public Move(int seconds, String turn) {
-            this.seconds = seconds;
-            this.turn = turn;
-        }
-    }
-
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        StringTokenizer st;
-        N = Integer.parseInt(br.readLine());
-        arr = new int[N + 1][N + 1];
-        K = Integer.parseInt(br.readLine());
-        for (int i = 0; i < K; i++) {
-            st = new StringTokenizer(br.readLine());
-            arr[Integer.parseInt(st.nextToken())][Integer.parseInt(st.nextToken())] = 1;
-        }
-        L = Integer.parseInt(br.readLine());
-        for (int i = 0; i < L; i++) {
-            st = new StringTokenizer(br.readLine());
-            queue.add(new Move(Integer.parseInt(st.nextToken()), st.nextToken()));
-        }
-        deque.offerLast(new Position<Integer, Integer>(1, 1));
-        deque.offerLast(new Position<Integer, Integer>(1, 0));
-
-        moveSnake();
-        bw.write(result + "\n");
-        bw.flush();
-        bw.close();
-    }
-
-    private static void moveSnake() {
-        Position<Integer, Integer> position = deque.peekFirst();
-        int x = position.x;
-        int y = position.y;
-        int turn = 3;
-        Move move = queue.poll();
-
+        String[] move = moves.poll();
+        int time = 0;
+        int direction = 1;
         while (true) {
-            result++;
-            // 뱀 머리 이동
-            x += moveX[turn];
-            y += moveY[turn];
-            
-            // 뱀이 벽에 부딪혔을 때때
-            if (!(x > 0 && x <= N && y > 0 && y <= N)) {
+            int[] head = snake.peek();
+            int x = head[0];
+            int y = head[1];
+            time++;
+
+            x += dx[direction];
+            y += dy[direction];
+            if (x <= 0 || x > n || y <= 0 || y > n) { // 보드를 벗어나면
                 break;
-            }
-            
-            // 사과가 있을 때 뱀 이동
-            if (arr[x][y] == 0) {
-                deque.pollLast();
+            } else if (visited[x][y]) { // 몸에 닿는다면
+                break;
             } else {
-                arr[x][y] = 0;
-            }
-
-            // 뱀이 몸에 부딪혔을 때
-            if (checkVisit(x, y)) {
-                break;
-            }
-
-            position = new Position<Integer, Integer>(x, y);
-            deque.offerFirst(position);
-
-            // 방향전환
-            if (move != null && move.seconds == result) {
-                if (move.turn.equals("L")) {
-                    turn = leftIndex[turn];
+                if (map[x][y] == 0) { // 사과가 없다면 몸 길이를 줄인다.
+                    int[] tail = snake.pollLast();
+                    visited[tail[0]][tail[1]] = false;
                 }
-                if (move.turn.equals("D")) {
-                    turn = rightIndex[turn];
-                }
-                move = queue.poll();
+                map[x][y] = 0;
+                visited[x][y] = true;
+                snake.offerFirst(new int[] { x, y });
             }
+
+            if (time == Integer.parseInt(move[0])) {
+                direction = changeDirection(direction, move[1]);
+                if (!moves.isEmpty())
+                    move = moves.poll();
+            }
+        }
+        System.out.println(time);
+    }
+
+    private static int changeDirection(int direction, String string) {
+        if (direction == 0) {
+            if (string.equals("L"))
+                return 3;
+            return 2;
+        } else if (direction == 1) {
+            if (string.equals("L"))
+                return 2;
+            return 3;
+        } else if (direction == 2) {
+            if (string.equals("L"))
+                return 0;
+            return 1;
+        } else {
+            if (string.equals("L"))
+                return 1;
+            return 0;
         }
     }
 
-    private static boolean checkVisit(int x, int y) {
-        for (Position<Integer, Integer> position : deque) {
-            if (position.x.equals(x) && position.y.equals(y)) {
-                return true;
-            }
+    public static void input() throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        n = Integer.parseInt(br.readLine());
+        k = Integer.parseInt(br.readLine());
+
+        map = new int[n + 1][n + 1];
+        visited = new boolean[n + 1][n + 1];
+        StringTokenizer st;
+        for (int i = 0; i < k; i++) {
+            st = new StringTokenizer(br.readLine());
+            map[Integer.parseInt(st.nextToken())][Integer.parseInt(st.nextToken())] = 1;
         }
-        return false;
+        l = Integer.parseInt(br.readLine());
+        for (int i = 0; i < l; i++) {
+            st = new StringTokenizer(br.readLine());
+            moves.add(new String[] { st.nextToken(), st.nextToken() });
+        }
     }
 }
