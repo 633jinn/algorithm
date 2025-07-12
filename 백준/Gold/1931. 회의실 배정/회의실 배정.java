@@ -2,51 +2,48 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    /**
-     * 최대 사용할 수 있는 회의가 최대 => 끝나는 시간이 짧은 순으로 정렬이 필요
-     * Comparator를 재정의하여 이용
-     */
+    static int n;
+    static PriorityQueue<int[]> pq = new PriorityQueue<>(new Comparator<int[]>() {
+        @Override
+        public int compare(int[] a, int[] b) {
+            if (a[1] == b[1]) {
+                return a[0] - b[0];
+            }
 
-    static int N;
-    static List<int[]> meetingList = new ArrayList<>();
-    static int result = 0;
+            return a[1] - b[1];
+        }
+    });
 
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-
-        N = Integer.parseInt(br.readLine());
-
-        for (int i = 0; i < N; i++) {
-            meetingList.add(Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray());
+    public static void main(String[] args) throws Exception {
+        input();
+        int end = 0;
+        int count = 0;
+        /**
+         * for (int[] set : pq)
+         * 이렇게 PriorityQueue를 foreach문으로 돌릴 경우
+         * 우선순위정렬되어 나오지 않기 때문에 반드시 for문으로 poll()하여 값을 받아야 함.
+         */
+        int size = pq.size();
+        for (int i = 0; i < size; i++) {
+            int[] set = pq.poll();
+            if (end <= set[0]) {
+                end = set[1];
+                count++;
+            }
         }
 
-        // 끝나는 시간이 짧은 순으로 sort
-        Collections.sort(meetingList, new Comparator<int[]>() {
-            @Override
-            public int compare(int[] o1, int[] o2) {
-                if (o1[1] == o2[1]) { // 종료 시간이 같을 때,
-                    return o1[0] - o2[0]; // 오름차순 o1[0] - o2[0] 내림차순 o2[0] - o1[0]
-                }
-                return o1[1] - o2[1];
-            }
-        });
-
-        greedy();
-
-        bw.write(result + "\n");
-        bw.flush();
-        bw.close();
+        System.out.println(count);
     }
 
-    private static void greedy() {
-        int lastTime = 0;
-        for (int i = 0; i < N; i++) {
-            int[] meeting = meetingList.get(i);
-            if (lastTime <= meeting[0]) {
-                lastTime = meeting[1];
-                result++;
-            }
+    public static void input() throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        n = Integer.parseInt(br.readLine());
+        StringTokenizer st;
+        for (int i = 0; i < n; i++) {
+            st = new StringTokenizer(br.readLine());
+            int key = Integer.parseInt(st.nextToken());
+            int value = Integer.parseInt(st.nextToken());
+            pq.offer(new int[] { key, value });
         }
     }
 }
